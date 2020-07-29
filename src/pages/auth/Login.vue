@@ -38,7 +38,7 @@
       </q-card-section>
 
       <q-card-actions>
-        <q-btn class="col" :label="$t('auth.login.login')" color="primary" :loading="btnLoginLoading" @click="onSubmit" />
+        <q-btn class="col" :label="$t('auth.login.login')" color="primary" @click="onSubmit" />
         <!-- <q-btn class="col" :label="$t('auth.register.register')" outline color="secondary" to="/admin/auth/register" /> -->
       </q-card-actions>
       <q-space/>
@@ -52,7 +52,6 @@ export default {
   name: 'Login',
   data () {
     return {
-      btnLoginLoading: false,
       profile: null,
       data: {
         body: {
@@ -93,7 +92,6 @@ export default {
       }
     },
     onSubmit () {
-      this.btnLoginLoading = true
       this.$q.loading.show()
       this.$auth
         .login(this.data)
@@ -123,7 +121,6 @@ export default {
         })
         .finally(() => {
           setTimeout(() => {
-            this.btnLoginLoading = false
             this.$q.loading.hide()
           }, 500)
         })
