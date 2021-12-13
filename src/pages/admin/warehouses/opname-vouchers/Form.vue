@@ -19,7 +19,7 @@
           <q-select class="col-12 col-md-6"
             label="Stockist"
             v-model="rsForm.stockist"
-            :options="['FM', 'WIP', 'FG', 'NC', 'NCR','NG']"
+            :options="['FM', 'WIP', 'PFG', 'FG', 'NC', 'NCR','NG']"
             :error="$v.rsForm.stockist.$error"
             :error-message="$vuelidate.message($v.rsForm.stockist, 'Number')"
           />
@@ -90,7 +90,7 @@ export default {
       resource: {
         uri: '/admin/warehouses/opname-vouchers',
         api: '/api/warehouses/opname-vouchers',
-        includes: ['item','unit','user_by'],
+        includes: ['item', 'unit', 'user_by'],
         fields: ['*,**']
       },
       default: () => ({
@@ -105,23 +105,23 @@ export default {
     },
     rsForm: null
   }),
-  validations() {
-    const {required, minLength, minValue} = this.$validator
+  validations () {
+    const { required, minValue } = this.$validator
     return {
       rsForm: {
         // number: { required, minLength: minLength(3) },
         stockist: { required },
         item: { id: { required } },
         unit: { id: { required } },
-        quantity: { required, minValue: minValue(0) },
+        quantity: { required, minValue: minValue(0) }
       }
     }
   },
-  created() {
+  created () {
     this.load()
   },
   methods: {
-    load() {
+    load () {
       this.RECORD.show = false
       this.$v.$reset()
       this.dataload(data => {
@@ -131,60 +131,58 @@ export default {
           this.RECORD.loading = true
           let api = `${this.RECORD.resource.api}/${meta.query.id}?${this.RECORD.apiParameters().join('&')}`
           this.$axios.get(api)
-          .then(response => {
-            const data = {...response.data, number: null, fullnumber: null, quantity: null}
-            this.RECORD.data = JSON.parse(JSON.stringify(data))
-            this.rsForm = data
-          })
-          .catch(error => {
-            this.$app.response.error(error).onOk(() => this.$router.back())
-          })
-          .finally(() => {
-            this.RECORD.show = true
-            this.RECORD.loading = false
-          })
-        }
-        else {
+            .then(response => {
+              const data = { ...response.data, number: null, fullnumber: null, quantity: null }
+              this.RECORD.data = JSON.parse(JSON.stringify(data))
+              this.rsForm = data
+            })
+            .catch(error => {
+              this.$app.response.error(error).onOk(() => this.$router.back())
+            })
+            .finally(() => {
+              this.RECORD.show = true
+              this.RECORD.loading = false
+            })
+        } else {
           this.rsForm = data
           this.RECORD.show = true
         }
       })
     },
-    save() {
+    save () {
       const submit = () => {
         let { mode, method, url } = this.RECORD.meta()
         this.RECORD.loading = true
-        console.warn('SAVE', method, url, this.rsForm);
+        console.warn('SAVE', method, url, this.rsForm)
         this.$axios.set(method, url, this.rsForm)
-        .then((response) => {
-          this.$v.$reset()
-          console.warn('response', response);
+          .then((response) => {
+            this.$v.$reset()
+            console.warn('response', response)
 
-          const redirect =  (mode !== 'create')
-            ? `${this.RECORD.resource.uri}/${response.data.id}`
-            : `${this.RECORD.resource.uri}/${response.data.id}?autoprint=true&autocreate=true`
+            const redirect = (mode !== 'create')
+              ? `${this.RECORD.resource.uri}/${response.data.id}`
+              : `${this.RECORD.resource.uri}/${response.data.id}?autoprint=true&autocreate=true`
 
-          console.warn('redirect', redirect);
-          this.$router.replace(redirect)
-
-        }).catch((error) => {
-          console.error(error.response || error)
-          this.$app.notify.error('Saving was invalid!')
-        }).finally(() => {
-          this.RECORD.loading = false
-        })
+            console.warn('redirect', redirect)
+            this.$router.replace(redirect)
+          }).catch((error) => {
+            console.error(error.response || error)
+            this.$app.notify.error('Saving was invalid!')
+          }).finally(() => {
+            this.RECORD.loading = false
+          })
       }
 
       this.$v.$touch()
       this.$nextTick(() => {
         // console.warn('$v', this.$v.$reset());
-        if(this.$v.$error) {
-          console.warn('error', this.$v.$error);
-          return this.$app.notify.error({message: 'The field was invalid!'})
+        if (this.$v.$error) {
+          console.warn('error', this.$v.$error)
+          return this.$app.notify.error({ message: 'The field was invalid!' })
         }
-        this.$app.confirm({ title: 'SUBMIT', message: 'Are you sure next to saving record?'}).onOk(() => submit())
+        this.$app.confirm({ title: 'SUBMIT', message: 'Are you sure next to saving record?' }).onOk(() => submit())
       })
-    },
-  },
+    }
+  }
 }
 </script>
