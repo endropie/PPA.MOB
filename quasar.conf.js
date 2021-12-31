@@ -160,7 +160,6 @@ module.exports = function (ctx) {
       id: 'org.cordova.quasar.ppa'
     },
 
-
     // Full list of options: https://quasar.dev/quasar-cli/developing-capacitor-apps/configuring-capacitor
     capacitor: {
       hideSplashscreen: true
