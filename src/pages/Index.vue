@@ -55,8 +55,6 @@
 </template>
 <script>
 import LoginComponent from '@/pages/auth/Login'
-import store from '@/store'
-import AppModal from '../components/AppModal'
 
 export default {
   name: 'PageIndex',
@@ -65,12 +63,12 @@ export default {
     slide: 1,
     configDialog: false
   }),
-  created() {
+  created () {
     console.warn('BASE', this.$axios.defaults.baseURL)
     this.load()
   },
   methods: {
-    load() {
+    load () {
       setTimeout(() => {
         if (this.$store.getters['auth/user']) this.$router.push('/admin')
         else this.login = true
@@ -81,23 +79,14 @@ export default {
         component: LoginComponent,
         parent: this,
         title: this.$t('auth.login.title'),
-        persistent: true,
-        // maximized: true,
-        // fullWidth: true
-        // ...more.props...
-      }).onOk(() => {
-        console.log('OK')
-      }).onCancel(() => {
-        console.log('Cancel')
-      }).onDismiss(() => {
-        console.log('Called on OK or Cancel')
+        persistent: true
       })
     },
     setHostAPI (v) {
       this.$axios.defaults.setBaseURL(v)
       this.configDialog = false
       setTimeout(() => {
-        this.$q.notify('API Host changed to '+ v)
+        this.$q.notify('API Host changed to ' + v)
       }, 500)
     },
     config () {
@@ -105,6 +94,6 @@ export default {
       console.warn('URL', this.$axios.defaults.baseURL)
       // console.warn('CONFIG', this.$axios.defaults)
     }
-  },
+  }
 }
 </script>

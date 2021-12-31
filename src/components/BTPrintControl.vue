@@ -39,24 +39,25 @@
 
 <script>
 import { mapGetters } from 'vuex'
-const elPrinter = window.BTPrinter || null
+const eBTPrinter = window.BTPrinter || null
 
 export default {
   name: 'BTPrintControl',
   data: () => ({
     BTP: {
       loading: false,
-      list: [],
+      list: []
     }
   }),
   computed: {
     ...mapGetters('printer', ['BTPrinter'])
   },
-  created() {
+  created () {
     this.loadBTPrinter()
   },
   methods: {
     testPrint () {
+      console.warn('TEST', eBTPrinter)
       const e = window.BTPrinter
 
       if (!e) this.$q.notify('BT Printer no supported!')
@@ -65,7 +66,7 @@ export default {
         // e.printText(null,null,  `\x1b\x44\x04\x00` + `\x091234567890\n`) // TAB
         // e.printText(null,null,  `\x1b\x2d\x02` + `1234567890\n`) // underline
 
-        e.printTextSizeAlign(null,null, 'Font 8\n' +"12345678901234567890123456789012\n", '8','0')
+        e.printTextSizeAlign(null, null, 'Font 8\n' + '12345678901234567890123456789012\n', '8', '0')
         // e.printTextSizeAlign(null,null, 'Font 10\n'+"12345678901234567890123456789012\n", '10','0')
         // e.printTextSizeAlign(null,null, 'Font 11\n'+"123456789012345678901234567890123456789012\n", '11','0')
         // e.printTextSizeAlign(null,null, 'Font 20\n'+"1234567890123456\n", '20','0')
@@ -73,7 +74,7 @@ export default {
         // e.printTextSizeAlign(null,null, 'Font 31\n'+"123456789012345678901\n", '31','0')
         // e.printTextSizeAlign(null,null, 'Font 51\n'+"123456789012345678901234567890123456789012\n", '51','0')
         // e.printTextSizeAlign(null,null, 'Font 61\n'+"123456789012345678901\n", '61','0')
-        e.printText((done) => console.warn, console.error,'\n\n')
+        e.printText((done) => console.warn, console.error, '\n\n')
       }, (fail) => {
         this.$q.notify('PRINT TEST FAILED!')
       }, '')
@@ -83,13 +84,15 @@ export default {
       const connecting = () => {
         setTimeout(() => {
           this.connect(item)
-          .then((done) => {
-            this.$q.notify('Connecting success!')
-            this.$emit('ok')
-            this.$emit('hide')
-          }).catch((fail) => {
-            this.$q.notify('Connecting Fail!')
-          }).finally(() => this.BTP.loading = false)
+            .then(() => {
+              this.$q.notify('Connecting success!')
+              this.$emit('ok')
+              this.$emit('hide')
+            }).catch((fail) => {
+              this.$q.notify('Connecting Fail!')
+            }).finally(() => {
+              this.BTP.loading = false
+            })
         }, 1000)
       }
 
@@ -97,14 +100,14 @@ export default {
         setTimeout(() => {
           this.disconnect(this.BTPrinter)
             .then((done) => {
-              if(!reconnect) this.$q.notify('Disconnecting success!')
+              if (!reconnect) this.$q.notify('Disconnecting success!')
             }).catch((fail) => {
-              if(!reconnect) this.$q.notify('Disconnecting Fail!')
+              if (!reconnect) this.$q.notify('Disconnecting Fail!')
             }).finally(() => {
-              if(!reconnect) this.BTP.loading = false
+              if (!reconnect) this.BTP.loading = false
               else reconnect()
             })
-        }, 1000);
+        }, 1000)
       }
 
       if (!this.BTPrinter) return connecting()
@@ -113,26 +116,26 @@ export default {
         disconnecting(() => connecting())
       }
     },
-    connect(item) {
+    connect (item) {
       return new Promise((resolve, reject) => {
-        return elPrinter.connect((conn) => {
+        return eBTPrinter?.connect((conn) => {
           this.$store.commit('printer/setBTPrinter', item)
           setTimeout(() => {
             resolve(conn)
           }, 1500)
-        },(fail) => {
+        }, (fail) => {
           reject(fail)
         }, item.name)
       })
     },
     disconnect (item) {
       return new Promise((resolve, reject) => {
-        return elPrinter.disconnect((conn) => {
+        return eBTPrinter?.disconnect((conn) => {
           this.$store.commit('printer/setBTPrinter', null)
           setTimeout(() => {
             resolve(conn)
           }, 500)
-        },(fail) => {
+        }, (fail) => {
           reject(fail)
         }, item.name)
       })
@@ -140,35 +143,36 @@ export default {
     loadBTPrinter () {
       const listen = () => {
         this.listenBTPrinter()
-        .then((data) => {
-          this.BTP.list = data
-        }).catch((error) => {
-          console.error(error)
-        })
+          .then((data) => {
+            this.BTP.list = data
+          }).catch((error) => {
+            console.error(error)
+          })
       }
-      if (elPrinter) listen ()
+      if (eBTPrinter) listen()
       else this.$q.notify('BT Printer not supported!')
     },
     listenBTPrinter () {
-      const lister  = (data) => {
+      const lister = (data) => {
         const list = []
-        for (let i = 0; i < data.length; i+=3) {
+        for (let i = 0; i < data.length; i += 3) {
           list.push({
             name: data[i],
-            address: data[i+1],
-            type: data[i+2]
+            address: data[i + 1],
+            type: data[i + 2]
           })
         }
         return list
       }
-      return new Promise(function(resolve, reject) {
-        return BTPrinter.list((data) => {
+      console.warn('LISTEN', eBTPrinter, this.$q.cordova)
+      return new Promise(function (resolve, reject) {
+        return eBTPrinter?.list((data) => {
           resolve(lister(data))
         }, (fail) => {
           reject(fail)
         })
       })
-    },
-  },
+    }
+  }
 }
 </script>

@@ -70,24 +70,22 @@ export default {
     }
   },
   computed: {
-    location() {
+    location () {
       return window.location.host
     }
   },
-  created() {
-    console.warn('LOGIN->window', window);
+  created () {
     this.load()
   },
   methods: {
-    show() {
+    show () {
       console.warn('ini show')
     },
-    load() {
+    load () {
       if (this.$store.getters['auth/loggedIn']) {
         this.$emit('hide')
         this.$router.replace('/admin')
-      }
-      else {
+      } else {
         this.show = true
       }
     },
@@ -95,19 +93,19 @@ export default {
       this.$q.loading.show()
       this.$auth
         .login(this.data)
-        .then(response => {
+        .then(() => {
           this.$emit('ok')
-          setTimeout(() => this.$router.push('/admin'), 500);
+          setTimeout(() => this.$router.push('/admin'), 500)
         })
         .catch(error => {
           if (error.response) {
             if (error.response.status === 401) {
-              const messageI18n = error.response.data.message && String(error.response.data.message).indexOf('auth.login.') == 0
-                ? error.response.data.message: 'auth.login.verification_required'
+              const messageI18n = error.response.data.message && String(error.response.data.message).indexOf('auth.login.') === 0
+                ? error.response.data.message : 'auth.login.verification_required'
               this.$q.dialog({
                 title: this.$tc('auth.login.failed'),
                 message: this.$t(messageI18n),
-                stackButtons: true,
+                stackButtons: true
               })
             } else if (error.response.status === 403) {
               this.$q.dialog({
